@@ -20,11 +20,11 @@
 using namespace std;
 
 double p(double x){
-    return  pow(x,2.0/3.0);
+    return  -pow(x,2.0/3.0);
 }
 
 double q(double x){
-    return pow(x,-2.0/3.0);
+    return pow(x,-2.0/3.0)/9.0;
 }
 
 
@@ -32,12 +32,12 @@ double q(double x){
 
 void elimi(double**A, double*B, double*X, int m);
 void thomas(double**A, double*b, double*u,int m);
-void Save(double*result,int m);
+void Save(double*result,double*X,int m);
 const double alfa( 1.0 );
 const double beta( 0.0 );
 const double a( 1.0 );
 const double b( 2.0 );
-const int m( 10 );
+const int m( 1000 );
 
 
 int main(int argc, char** argv) {
@@ -66,9 +66,9 @@ int main(int argc, char** argv) {
     
    // fill the F matrix
     for (int i = 1;i<=m-1;i++){
-        F[i][i-1] = p(X[i])/(h*h);
-        F[i][i] = (-p(X[i+1])- p(X[i]))/(h*h) - q(X[i])/9.0;
-       F[i][i+1] = p(X[i+1])/(h*h); 
+        F[i][i-1] = -p(X[i])/(h*h);
+        F[i][i] = (p(X[i+1])+ p(X[i]))/(h*h) + q(X[i]);
+       F[i][i+1] = -p(X[i+1])/(h*h); 
     }
     
     F[0][0] = 1;
@@ -82,8 +82,8 @@ int main(int argc, char** argv) {
           }
                 cout << endl;
 
-       }*/
-  
+       }
+  */
     //zero right hand side
     for(int i=1;i<m;i++){
         PS[i]=0;
@@ -95,8 +95,8 @@ int main(int argc, char** argv) {
   elimi(F, PS, U, m);  
 
    
-  //thomas(F, PS, U,m);
-   Save(U,m);
+ //thomas(F, PS, U,m);
+   Save(U,X,m);
     return 0;
 }
 
@@ -112,6 +112,7 @@ void thomas(double**A, double*b, double*u, int n){
       {
          A[k][k+1]= A[k][k+1]/ ( A[k][k] - A[ k ][k - 1 ] * A[k - 1] [k ] );
          A[k][k] = 1.0;
+         A[k][k-1]=0.0;
       }
    }
     for(int i=0;i<n+1;i++){
@@ -136,14 +137,14 @@ void thomas(double**A, double*b, double*u, int n){
 }
 
 
-void Save(double*result,int m)
+void Save(double*result,double*X,int m)
 {
     
     fstream file;
     file.open( "vek.txt", ios::out );
       for(int i = 0; i <= m; i++)
     {
-       file  << result[i] << endl;
+       file  << X[i] <<"   "<< result[i] << endl;
     }
     cout << "Data was successfully saved." << endl;
 }
@@ -175,19 +176,19 @@ void elimi(double**A, double*B, double*X, int m){
      }
      
      
-     
+     /*
      for(int i=0;i<m+1;i++){
                 for(int j=0;j<=m+1;j++){
                         cout << C[i][j] << " ";
                 }
                 cout << endl;
-        }
+        }*/
      
-     
+     X[10]=beta;
       for( int k = m - 1; k >= 0; k-- )
-      X[ k ] = C[ k ][m+1] - C[k][k+1] * C[ k + 1 ][m+1];
+      X[ k ] = C[ k ][m+1] - C[k][k+1] * X[ k + 1 ];
      
-     for(int i=0;i<=m;i++){
-       cout<<"U["<<i<<"]="<<X[i]<<endl;
-   }
+    // for(int i=0;i<=m;i++){
+      // cout<<"U["<<i<<"]="<<X[i]<<endl;
+   //}
 }
